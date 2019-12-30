@@ -1,0 +1,25 @@
+{
+	"name": "slicy",
+	"version": "0.0.1",
+	"description": "",
+	"bin": {
+		"slicy": "./bin/slicy.mjs"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "arepo@nologin.ru",
+	"license": "ISC",
+	"dependencies": {
+		"getoptie": "^1.0.2",
+		"strftime": "0.10.0"
+	},
+	"devDependencies": {
+		"babel-eslint": "^10.0.3",
+		"eslint": "^6.8.0"
+	},
+	"engines": {
+		"node": ">=13"
+	}
+}
