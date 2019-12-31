@@ -7,6 +7,8 @@ import { pipeline as executePipeline } from 'stream';
 import FileWriter from '../src/FileWriter.mjs';
 import findLastLineEnd from '../src/findLastLineEnd.mjs';
 import FileSpawner from '../src/FileSpawner.mjs';
+import path from 'path';
+import { promises as fsPromises } from 'fs';
 
 let pattern;
 let compressor;
@@ -42,14 +44,17 @@ const run = async () => {
 	pipeline.push(new FileWriter({
 		fileSpawner: new FileSpawner({
 			generateFilename: index => filenameGenerator.generate(new Date, index),
-			transform: compress
+			transform: (compress
 				? file => {
 					compress.pipe(file);
 
 					return compress;
 				}
 				: file => file
-			,
+			),
+			createDirectoryTree: async filepath => {
+				await fsPromises.mkdir(path.dirname(filepath), {recursive: true});
+			},
 		}),
 		findRecordEnd: findLastLineEnd,
 	}));

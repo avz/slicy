@@ -15,6 +15,11 @@ class FileSpawner
 	transform;
 
 	/**
+	 * @type {function(path: string): Promise} createDirectoryTree
+	 */
+	createDirectoryTree;
+
+	/**
 	 * @private
 	 * @type {string}
 	 */
@@ -29,13 +34,14 @@ class FileSpawner
 	/**
 	 *
 	 * @param {function(index: number): string} generateFilename
-	 * @param {function(path: string, options: Object): Writable} createWriteStream
 	 * @param {function(file: Writable): Writable} transform
+	 * @param {function(path: string): Promise} createDirectoryTree
 	 */
-	constructor({generateFilename, createWriteStream, transform})
+	constructor({generateFilename, transform, createDirectoryTree = null})
 	{
 		this.generateFilename = generateFilename;
 		this.transform = transform;
+		this.createDirectoryTree = createDirectoryTree;
 	}
 
 	/**
@@ -52,18 +58,18 @@ class FileSpawner
 	async spawn()
 	{
 		let index = this.currentIndex;
-		let filename = this.generateFilename(index);
+		let path = this.generateFilename(index);
 
-		if (filename !== this.currentFilename) {
+		if (path !== this.currentFilename) {
 			index = 0;
 		}
 
 		while (true) {
 			try {
-				const stream = await createWriteStream(filename, {flags: 'wx'});
+				const stream = await this.createFile(path);
 
 				this.currentIndex = index;
-				this.currentFilename = filename;
+				this.currentFilename = path;
 
 				return this.transform(stream);
 			} catch (e) {
@@ -76,12 +82,26 @@ class FileSpawner
 
 			const fn = this.generateFilename(index);
 
-			if (fn === filename) {
+			if (fn === path) {
 				throw new Error('Runtime Error: Same names on different indexes');
 			}
 
-			filename = fn;
+			path = fn;
 		}
+	}
+
+	/**
+	 * @private
+	 * @param {string} path
+	 * @return {Promise<Writable>}
+	 */
+	async createFile(path)
+	{
+		if (this.createDirectoryTree) {
+			this.createDirectoryTree(path);
+		}
+
+		return createWriteStream(path, {flags: 'wx'});
 	}
 }
 
