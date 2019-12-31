@@ -1,13 +1,12 @@
 import { Writable } from 'stream';
-import fs from 'fs';
 
 class FileWriter extends Writable
 {
 	/**
 	 * @private
-	 * @type {function(): string}
+	 * @type {FileSpawner}
 	 */
-	generateFilename;
+	fileSpawner;
 
 	/**
 	 * @private
@@ -22,17 +21,16 @@ class FileWriter extends Writable
 
 	/**
 	 *
-	 * @param {function(): string} generateFilename
+	 * @param {FileSpawner} fileSpawner
 	 * @param {function(buf: Buffer): ?number} findRecordEnd
 	 * @param {?function(file: Writable)} transform
 	 */
-	constructor(generateFilename, findRecordEnd, transform = null)
+	constructor({fileSpawner, findRecordEnd})
 	{
 		super();
 
-		this.generateFilename = generateFilename;
+		this.fileSpawner = fileSpawner;
 		this.findRecordEnd = findRecordEnd;
-		this.transform = transform;
 	}
 
 	/**
@@ -54,15 +52,13 @@ class FileWriter extends Writable
 		};
 	}
 
-	_write(chunk, encoding, callback)
+	async _write(chunk, encoding, callback)
 	{
-		const filename = this.generateFilename();
-
 		if (!this.file) {
-			this.spawnNewFile(filename);
+			await this.spawnNewFile();
 		}
 
-		if (filename === this.currentFilename) {
+		if (!this.fileSpawner.needSpawnNewFile()) {
 			this.file.write(chunk, callback);
 
 			return;
@@ -77,8 +73,8 @@ class FileWriter extends Writable
 			return;
 		}
 
-		this.file.end(splitted.current, () => {
-			this.spawnNewFile(filename);
+		this.file.end(splitted.current, async () => {
+			await this.spawnNewFile();
 
 			this.file.write(splitted.next, callback);
 		});
@@ -97,19 +93,11 @@ class FileWriter extends Writable
 
 	/**
 	 * @private
-	 * @param {string} filename
-	 * @returns {WriteStream}
+	 * @returns {Promise}
 	 */
-	spawnNewFile(filename)
+	async spawnNewFile()
 	{
-		this.currentFilename = filename;
-
-		this.file = this.transform(fs.createWriteStream(
-			filename,
-			{
-				flags: 'a',
-			},
-		));
+		this.file = await this.fileSpawner.spawn();
 	}
 }
 

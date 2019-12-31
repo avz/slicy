@@ -6,6 +6,7 @@ import SystemPipe from '../src/SystemPipe.mjs';
 import { pipeline as executePipeline } from 'stream';
 import FileWriter from '../src/FileWriter.mjs';
 import findLastLineEnd from '../src/findLastLineEnd.mjs';
+import FileSpawner from '../src/FileSpawner.mjs';
 
 let pattern;
 let compressor;
@@ -38,17 +39,20 @@ const run = async () => {
 	const filenameGenerator = new FilenameGenerator(pattern);
 	const compress = compressor ? SystemPipe.spawn(compressor) : null;
 
-	pipeline.push(new FileWriter(
-		() => filenameGenerator.generate(new Date),
-		findLastLineEnd,
-		compress
-			? file => {
-				compress.pipe(file);
+	pipeline.push(new FileWriter({
+		fileSpawner: new FileSpawner({
+			generateFilename: index => filenameGenerator.generate(new Date, index),
+			transform: compress
+				? file => {
+					compress.pipe(file);
 
-				return compress;
-			}
-			: file => file,
-	));
+					return compress;
+				}
+				: file => file
+			,
+		}),
+		findRecordEnd: findLastLineEnd,
+	}));
 
 	let sigintCount = 0;
 
