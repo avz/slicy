@@ -26,6 +26,10 @@ try {
 
 	pattern = opts.args[0];
 	compressor = opts.options.c;
+
+	if (!FilenameGenerator.patternHasIndex(pattern)) {
+		throw new Error('PATTERN must contain file sequence number substitution (#). For example: %Y-%m-%dT%H:%M:%S.#.log');
+	}
 } catch (e) {
 	process.stdout.write('Error: ' + e.message + '\n');
 	process.stdout.write('Usage: slicy [-c COMPRESS_PROGRAM] PATTERN\n');
@@ -39,13 +43,15 @@ const run = async () => {
 	];
 
 	const filenameGenerator = new FilenameGenerator(pattern);
-	const compress = compressor ? SystemPipe.spawn(compressor) : null;
+	let compress;
 
 	pipeline.push(new FileWriter({
 		fileSpawner: new FileSpawner({
 			generateFilename: index => filenameGenerator.generate(new Date, index),
-			transform: (compress
+			transform: (compressor
 				? file => {
+					compress = SystemPipe.spawn(compressor);
+
 					compress.pipe(file);
 
 					return compress;

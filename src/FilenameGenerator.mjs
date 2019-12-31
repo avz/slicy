@@ -40,6 +40,16 @@ class FilenameGenerator
 	}
 
 	/**
+	 *
+	 * @param {string} pattern
+	 * @returns {boolean}
+	 */
+	static patternHasIndex(pattern)
+	{
+		return pattern.indexOf('#') !== -1;
+	}
+
+	/**
 	 * @param {Date} now
 	 * @param {number} index
 	 * @return {string}
