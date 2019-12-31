@@ -36,20 +36,56 @@ const run = async () => {
 	];
 
 	const filenameGenerator = new FilenameGenerator(pattern);
+	const compress = compressor ? SystemPipe.spawn(compressor) : null;
 
 	pipeline.push(new FileWriter(
 		() => filenameGenerator.generate(new Date),
 		findLastLineEnd,
-		compressor
+		compress
 			? file => {
-				const compress = SystemPipe.spawn(compressor);
-
 				compress.pipe(file);
 
 				return compress;
 			}
 			: file => file,
 	));
+
+	let sigintCount = 0;
+
+	const signalHandler = sig => {
+		if (!compress) {
+			pipeline[0].unpipe();
+			pipeline[1].end();
+
+			return;
+		}
+
+		sigintCount++;
+
+		if (sigintCount === 2) {
+			console.error(sig + ' caught. Interruption forced. Sending SIGTERM to all child processes. Send ' + sig + ' again to kill childs by SIGKILL');
+
+			compress.kill('SIGTERM');
+
+			return;
+		}
+
+		if (sigintCount > 2) {
+			console.error(sig + ' caught. Interruption forced. Sending SIGKILL to all child processes');
+
+			compress.kill('SIGKILL');
+
+			return;
+		}
+
+		console.error(sig + ' caught. Waiting for the completion of child processes. You can send ' + sig + ' again to force interruption');
+
+		pipeline[0].unpipe();
+		pipeline[1].end();
+	};
+
+	process.on('SIGINT', signalHandler);
+	process.on('SIGTERM', signalHandler);
 
 	executePipeline(...pipeline, () => {});
 };

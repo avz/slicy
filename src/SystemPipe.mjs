@@ -43,8 +43,14 @@ class SystemPipe extends Transform
 			{
 				shell: true,
 				stdio: ['pipe', 'pipe', 'inherit'],
+				detached: true,
 			},
 		));
+	}
+
+	kill(signal)
+	{
+		this.process.kill(signal);
 	}
 
 	_transform(chunk, encoding, callback)
