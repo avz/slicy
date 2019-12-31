@@ -78,7 +78,16 @@ class FileSpawner
 				}
 			}
 
-			index++;
+			/*
+				Пока мы перебирали индексы мог измениться таймстемп.
+				Делаю грязное решение. Иногда будет давать сбои т.к.
+				временное окно ошибки всё же остаётся, хоть и сильно уменьшается
+			 */
+			if (this.generateFilename(index) !== path) {
+				index = 0;
+			} else {
+				index++;
+			}
 
 			const fn = this.generateFilename(index);
 
@@ -98,7 +107,7 @@ class FileSpawner
 	async createFile(path)
 	{
 		if (this.createDirectoryTree) {
-			this.createDirectoryTree(path);
+			await this.createDirectoryTree(path);
 		}
 
 		return createWriteStream(path, {flags: 'wx'});

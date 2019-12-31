@@ -93,7 +93,6 @@ class FileWriter extends Writable
 
 	/**
 	 * @private
-	 * @returns {Promise}
 	 */
 	async spawnNewFile()
 	{
