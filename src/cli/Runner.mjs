@@ -9,11 +9,25 @@ import { pipeline as executePipeline } from "stream";
 
 class Runner
 {
+	/**
+	 * @type {Options}
+	 */
 	options;
 
+	/**
+	 * @type {Writable[]}
+	 */
 	pipeline;
+
+	/**
+	 * @type {?SystemPipe}
+	 */
 	compressChild;
 
+	/**
+	 *
+	 * @param {Options} options
+	 */
 	constructor(options)
 	{
 		this.options = options;
