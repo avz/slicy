@@ -1,7 +1,6 @@
 import getoptie from 'getoptie';
 import FilenameGenerator from '../FilenameGenerator.mjs';
 import parseSize from './parseSize.mjs';
-import Options from './Options.mjs';
 
 /**
  * @param {string[]} argv
@@ -29,13 +28,10 @@ export default function parseArgv(argv)
 	const minFileSize = opts.options.s ? parseSize(opts.options.s) : 0;
 	const maxFileSize = opts.options.S ? parseSize(opts.options.S) : 0;
 
-	return Object.create(
-		Options.prototype,
-		{
-			pattern,
-			compressor,
-			minFileSize,
-			maxFileSize,
-		},
-	);
+	return {
+		pattern,
+		compressor,
+		minFileSize,
+		maxFileSize,
+	};
 }
