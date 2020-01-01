@@ -6,7 +6,7 @@
 		"slicy": "./bin/slicy.mjs"
 	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "./tests/mocha.mjs tests/*/*.test.mjs tests/*/*/*.test.mjs"
 	},
 	"keywords": [],
 	"author": "arepo@nologin.ru",
