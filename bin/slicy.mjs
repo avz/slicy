@@ -9,8 +9,8 @@ let options;
 try {
 	options = parseArgv(process.argv);
 } catch (e) {
-	process.stdout.write('Error: ' + e.message + '\n');
 	process.stdout.write(usage());
+	process.stdout.write('Error: ' + e.message + '\n');
 
 	process.exit(255);
 }
