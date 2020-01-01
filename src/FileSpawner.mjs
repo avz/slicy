@@ -1,7 +1,11 @@
-import createWriteStream from './createWriteStream.mjs';
-
 class FileSpawner
 {
+	/**
+	 * @private
+	 * @type {function(name: string, options = {})}
+	 */
+	createWriteStream;
+
 	/**
 	 * @private
 	 * @type {function(index: number): string}
@@ -45,6 +49,7 @@ class FileSpawner
 
 	/**
 	 *
+	 * @param {function(name: string, options = {})} createWriteStream
 	 * @param {function(index: number): string} generateFilename
 	 * @param {function(file: Writable): Writable} transform
 	 * @param {number} minFileSize
@@ -52,6 +57,7 @@ class FileSpawner
 	 * @param {?function(path: string): Promise} createDirectoryTree
 	 */
 	constructor({
+		createWriteStream,
 		generateFilename,
 		transform,
 		minFileSize = 0,
@@ -59,6 +65,7 @@ class FileSpawner
 		createDirectoryTree = null,
 	})
 	{
+		this.createWriteStream = createWriteStream;
 		this.generateFilename = generateFilename;
 		this.transform = transform;
 		this.minFileSize = minFileSize || 0;
@@ -145,7 +152,7 @@ class FileSpawner
 			await this.createDirectoryTree(path);
 		}
 
-		return createWriteStream(path, {flags: 'wx'});
+		return this.createWriteStream(path, {flags: 'wx'});
 	}
 }
 

@@ -2,10 +2,11 @@ import FilenameGenerator from '../FilenameGenerator.mjs';
 import FileWriter from '../FileWriter.mjs';
 import FileSpawner from '../FileSpawner.mjs';
 import SystemPipe from '../SystemPipe.mjs';
-import { promises as fsPromises } from "fs";
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 import findLastLineEnd from '../findLastLineEnd.mjs';
-import { pipeline as executePipeline } from "stream";
+import { pipeline as executePipeline } from 'stream';
+import createWriteStream from '../createWriteStream.mjs';
 
 class Runner
 {
@@ -60,6 +61,7 @@ class Runner
 		const filenameGenerator = new FilenameGenerator(options.pattern);
 
 		return new FileSpawner({
+			createWriteStream,
 			generateFilename: index => filenameGenerator.generate(new Date, index),
 			minFileSize: options.minFileSize,
 			maxFileSize: options.maxFileSize,
