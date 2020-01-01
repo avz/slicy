@@ -18,5 +18,5 @@ export default function parseSize(sizeDeclaration)
 		throw new Error('Invalid size declaration: ' + sizeDeclaration);
 	}
 
-	return m[1] * mult[m[2]];
+	return m[1] * mult[m[2].toLowerCase()];
 }

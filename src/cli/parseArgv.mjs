@@ -19,7 +19,7 @@ export default function parseArgv(argv)
 	}
 
 	const pattern = opts.args[0];
-	const compressor = opts.options.c;
+	const compressor = opts.options.c || null;
 
 	if (!FilenameGenerator.patternHasIndex(pattern)) {
 		throw new Error('PATTERN must contain file sequence number substitution (#). For example: %Y-%m-%dT%H:%M:%S.#.log');
