@@ -14,16 +14,16 @@ class FileWriter extends Writable
 	 */
 	findRecordEnd;
 
-	transform;
-
-	currentFilename;
+	/**
+	 * @private
+	 * @type {Writable}
+	 */
 	file;
 
 	/**
 	 *
 	 * @param {FileSpawner} fileSpawner
 	 * @param {function(buf: Buffer): ?number} findRecordEnd
-	 * @param {?function(file: Writable)} transform
 	 */
 	constructor({fileSpawner, findRecordEnd})
 	{
