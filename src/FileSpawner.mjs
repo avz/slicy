@@ -32,23 +32,58 @@ class FileSpawner
 	currentIndex = 0;
 
 	/**
+	 * @private
+	 * @type {number}
+	 */
+	minFileSize = 0;
+
+	/**
+	 * @private
+	 * @type {number}
+	 */
+	maxFileSize = 0;
+
+	/**
 	 *
 	 * @param {function(index: number): string} generateFilename
 	 * @param {function(file: Writable): Writable} transform
-	 * @param {function(path: string): Promise} createDirectoryTree
+	 * @param {number} minFileSize
+	 * @param {number} maxFileSize
+	 * @param {?function(path: string): Promise} createDirectoryTree
 	 */
-	constructor({generateFilename, transform, createDirectoryTree = null})
+	constructor({
+		generateFilename,
+		transform,
+		minFileSize = 0,
+		maxFileSize = 0,
+		createDirectoryTree = null,
+	})
 	{
 		this.generateFilename = generateFilename;
 		this.transform = transform;
+		this.minFileSize = minFileSize || 0;
+		this.maxFileSize = maxFileSize || 0;
 		this.createDirectoryTree = createDirectoryTree;
 	}
 
 	/**
+	 * @param {Writable} currentFile
 	 * @returns {boolean}
 	 */
-	needSpawnNewFile()
+	needSpawnNewFile(currentFile)
 	{
+		const fileSize = currentFile.bytesWritten;
+
+		if (this.maxFileSize && fileSize >= this.maxFileSize) {
+			return true;
+		}
+
+		if (fileSize < this.minFileSize) {
+			// не спавним новый файл, пока его размер не достигнет minFileSize
+
+			return false;
+		}
+
 		return this.generateFilename(this.currentIndex) !== this.currentFilename;
 	}
 

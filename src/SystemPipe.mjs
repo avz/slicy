@@ -15,6 +15,8 @@ class SystemPipe extends Transform
 	 */
 	drainCb;
 
+	bytesWritten = 0;
+
 	/**
 	 * @private
 	 * @param {ChildProcess} process
@@ -26,6 +28,8 @@ class SystemPipe extends Transform
 		this.process = process;
 
 		this.process.stdout.on('data', buf => {
+			this.bytesWritten += buf.length;
+
 			const flushed = this.push(buf);
 
 			if (!flushed) {
@@ -55,6 +59,8 @@ class SystemPipe extends Transform
 
 	_transform(chunk, encoding, callback)
 	{
+		this.inputBytesCount += chunk.length;
+
 		this.process.stdin.write(chunk, callback);
 	}
 

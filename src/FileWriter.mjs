@@ -58,7 +58,7 @@ class FileWriter extends Writable
 			await this.spawnNewFile();
 		}
 
-		if (!this.fileSpawner.needSpawnNewFile()) {
+		if (!this.fileSpawner.needSpawnNewFile(this.file)) {
 			this.file.write(chunk, callback);
 
 			return;
