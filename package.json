@@ -1,6 +1,6 @@
 {
 	"name": "slicy",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "",
 	"bin": {
 		"slicy": "./bin/slicy.mjs"
