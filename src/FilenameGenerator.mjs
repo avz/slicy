@@ -34,13 +34,18 @@ class FilenameGenerator
 		this.pattern = pattern;
 	}
 
+	/**
+	 * @private
+	 * @param {string} pattern
+	 * @param {number} index
+	 * @returns {string}
+	 */
 	substituteIndex(pattern, index)
 	{
-		return pattern.replace('#', '' + index);
+		return pattern.replace(/#/g, '' + index);
 	}
 
 	/**
-	 *
 	 * @param {string} pattern
 	 * @returns {boolean}
 	 */
